@@ -1,0 +1,73 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "DrayTek Vigor",
+        "description": "Enter the address of your DrayTek Vigor. SNMP (v2c) must be enabled on the device.",
+        "data": {
+          "host": "Host",
+          "community": "SNMP community",
+          "port": "SNMP port"
+        },
+        "data_description": {
+          "host": "IP address or hostname of the Vigor, e.g. 192.168.1.1.",
+          "community": "Read community configured on the Vigor (default: public)."
+        }
+      },
+      "interface": {
+        "title": "Select WAN interface",
+        "description": "Choose the interface that carries your DSL/WAN link. On DrayOS 5 (e.g. Vigor167) this is usually ptm0.",
+        "data": {
+          "interface_index": "Interface"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "No SNMP answer. Check address, community and that SNMP is enabled.",
+      "not_draytek": "The device answered, but it does not look like a DrayTek.",
+      "no_interfaces": "The device does not report any interfaces via SNMP.",
+      "unknown": "Unexpected error, see the log for details."
+    },
+    "abort": {
+      "already_configured": "This device is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "DrayTek Vigor options",
+        "data": {
+          "interface_index": "WAN interface",
+          "scan_interval": "Polling interval"
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "link": {
+        "name": "Connection"
+      }
+    },
+    "sensor": {
+      "download": {
+        "name": "Download"
+      },
+      "upload": {
+        "name": "Upload"
+      },
+      "bytes_received": {
+        "name": "Data received"
+      },
+      "bytes_sent": {
+        "name": "Data sent"
+      },
+      "memory_usage": {
+        "name": "Memory usage"
+      },
+      "last_boot": {
+        "name": "Online since"
+      }
+    }
+  }
+}

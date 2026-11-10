@@ -1,0 +1,73 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "DrayTek Vigor",
+        "description": "Adresse deines DrayTek Vigor eingeben. Auf dem Gerät muss SNMP (v2c) aktiviert sein.",
+        "data": {
+          "host": "Host",
+          "community": "SNMP-Community",
+          "port": "SNMP-Port"
+        },
+        "data_description": {
+          "host": "IP-Adresse oder Hostname des Vigor, z. B. 192.168.1.1.",
+          "community": "Lese-Community, die im Vigor eingestellt ist (Standard: public)."
+        }
+      },
+      "interface": {
+        "title": "WAN-Schnittstelle auswählen",
+        "description": "Wähle die Schnittstelle, über die deine DSL-/WAN-Verbindung läuft. Bei DrayOS 5 (z. B. Vigor167) ist das meist ptm0.",
+        "data": {
+          "interface_index": "Schnittstelle"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Keine SNMP-Antwort. Adresse, Community und SNMP-Freigabe prüfen.",
+      "not_draytek": "Das Gerät antwortet, scheint aber kein DrayTek zu sein.",
+      "no_interfaces": "Das Gerät meldet per SNMP keine Schnittstellen.",
+      "unknown": "Unerwarteter Fehler, Details im Log."
+    },
+    "abort": {
+      "already_configured": "Dieses Gerät ist bereits eingerichtet."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "DrayTek-Vigor-Optionen",
+        "data": {
+          "interface_index": "WAN-Schnittstelle",
+          "scan_interval": "Abfrageintervall"
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "link": {
+        "name": "Verbindung"
+      }
+    },
+    "sensor": {
+      "download": {
+        "name": "Download"
+      },
+      "upload": {
+        "name": "Upload"
+      },
+      "bytes_received": {
+        "name": "Empfangen"
+      },
+      "bytes_sent": {
+        "name": "Gesendet"
+      },
+      "memory_usage": {
+        "name": "Arbeitsspeicher"
+      },
+      "last_boot": {
+        "name": "Online seit"
+      }
+    }
+  }
+}
