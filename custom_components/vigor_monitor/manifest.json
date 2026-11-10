@@ -1,6 +1,12 @@
 {
   "domain": "vigor_monitor",
   "name": "DrayTek Vigor Monitor",
+  "after_dependencies": [
+    "snmp"
+  ],
+  "categories": [
+    "computers_network.routers_network"
+  ],
   "codeowners": [
     "@TWIX99b"
   ],
