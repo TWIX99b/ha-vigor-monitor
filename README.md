@@ -1,59 +1,73 @@
-# DrayTek Vigor for Home Assistant
+# DrayTek Vigor Monitor for Home Assistant
 
-Local SNMP (+ optional SSH) integration for DrayTek Vigor DSL modems/routers – set up entirely in the UI, no YAML.
-Developed and tested with a **Vigor167 on DrayOS 5 (firmware 5.2.9)** in modem (bridge) mode.
+[![Validate](https://github.com/TWIX99b/ha-vigor-monitor/actions/workflows/validate.yaml/badge.svg)](https://github.com/TWIX99b/ha-vigor-monitor/actions/workflows/validate.yaml)
+[![hacs](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://hacs.xyz)
 
-## Features
+Local monitoring for DrayTek Vigor DSL modems/routers – **traffic and DSL line values in one
+integration**, set up entirely in the UI. Read-only: nothing is ever changed on the device.
 
-One device per Vigor with these entities:
+Developed and tested with a **Vigor167 on DrayOS 5 (firmware 5.2.9)** in modem (bridge) mode on a
+synced VDSL2 35b line. DrayOS 4 devices (Vigor 130/165/166 …) are supported via SNMP.
 
-| Entity | Description |
-|---|---|
-| Connection | DSL/WAN link up/down (IF-MIB `ifOperStatus`) |
-| Download / Upload | Current throughput in Mbit/s, calculated from the interface counters |
-| Data received / sent | Interface byte counters (`total_increasing`, usable in statistics) |
-| Memory usage | DrayTek private MIB (only created if the device reports it) |
-| Online since | Boot time derived from `sysUpTime` |
+## What you get
 
-Model and firmware version are shown in the device info.
+| Entity | Source | Notes |
+|---|---|---|
+| Connection | SNMP | WAN link up/down |
+| Connected since | SNMP | when the WAN link came up (`ifLastChange`) |
+| Download / Upload | SNMP | current throughput in Mbit/s |
+| Data received / sent | SNMP | byte counters, usable in long-term statistics |
+| Online since, CPU load, Memory usage | SNMP | diagnostic; CPU/memory only if the device reports them |
+| DSL synced | Web API | on while the line is in showtime |
+| Sync rate download / upload | Web API or SNMP¹ | kbit/s, shown in Mbit/s |
+| Attainable rate download / upload | Web API or SNMP¹ | |
+| SNR margin download / upload | Web API or SNMP¹ | dB |
+| Attenuation download / upload | Web API or SNMP¹ | dB |
+| DSL status, DSL mode, DSL firmware | Web API | e.g. `SHOWTIME`, `VDSL2 35b` |
+| CRC errors, errored / severely errored / unavailable seconds | Web API | near and far end, disabled by default |
 
-### Optional: DSL line values via SSH (DrayOS 5)
-
-When an SSH user is entered under *Configure*, these entities are added (read from the CLI command
-`exec dslinfo`, every 5 minutes by default):
-
-| Entity | Description |
-|---|---|
-| Sync rate download / upload | DSL line rate (stored in kbit/s, shown in Mbit/s) |
-| SNR margin download / upload | Signal-to-noise margin in dB |
-| DSL status | e.g. `Showtime` |
-| DSL line synced since | Timestamp derived from the line uptime |
-| DSL mode, DSL firmware | Diagnostic, e.g. `VDSL2 35b` |
-
-If SSH is not reachable, only these entities become unavailable – the SNMP sensors keep working.
+¹ DrayOS 5 (Vigor167) does not expose DSL values via SNMP, so they are read from the web interface
+(optional web login). DrayOS 4 devices report them via the standard xDSL MIBs; the integration uses
+those automatically when they answer.
 
 ## Requirements
 
-- SNMP v2c enabled on the Vigor (read community, default `public`), reachable from Home Assistant on UDP 161.
-- Optional for DSL values: SSH enabled on the Vigor (*System Maintenance → Management*), DrayOS 5.
+- **SNMP v2c** enabled on the Vigor (*System Maintenance → SNMP*, read community, default `public`),
+  UDP 161 reachable from Home Assistant.
+- Optional for the DSL values on DrayOS 5: the **web login** of the Vigor (usually `admin`).
+  The integration logs in like the browser does (`/cgi-bin/webproc.cgi`), keeps one session open
+  and logs out when Home Assistant stops.
 
-## Installation (HACS)
+## Installation
 
-1. HACS → ⋮ → *Custom repositories* → add `https://github.com/TWIX99b/ha-draytek-vigor`, category *Integration*.
-2. Install **DrayTek Vigor**, restart Home Assistant.
-3. *Settings → Devices & services → Add integration → DrayTek Vigor*.
-4. Enter host and community, then pick the WAN interface (DrayOS 5: usually `ptm0`).
+1. HACS → ⋮ → *Custom repositories* → `https://github.com/TWIX99b/ha-vigor-monitor`, category
+   *Integration*.
+2. Install **DrayTek Vigor Monitor**, restart Home Assistant.
+3. *Settings → Devices & services → Add integration → DrayTek Vigor Monitor*:
+   1. host and SNMP community,
+   2. WAN interface (DrayOS 5: usually `ptm0`),
+   3. optionally the web login for the DSL values (can be added later under *Configure*).
 
-Polling interval, interface and the optional SSH login can be changed later under *Configure*.
-The SSH password is stored in the Home Assistant config entry like any other integration credential.
+Polling intervals (SNMP 30 s, DSL 60 s), the interface and the web login can be changed under
+*Configure*. If the web login is rejected repeatedly, Home Assistant asks for new credentials.
 
 ## Notes
 
-- **DrayOS 5 counters are 32 bit**, even on the 64-bit `ifHC*` OIDs. The integration handles the wrap
-  when calculating throughput; for the byte counters Home Assistant treats the wrap as a meter reset.
-- **Sync rate and SNR** are not exposed via SNMP on DrayOS 5 (the classic ADSL-LINE-MIB /
-  VDSL2-LINE-MIB OIDs return nothing), hence the optional SSH part.
-- Other models: please open an issue and attach the integration's diagnostics download.
+- **DrayOS 5 counters are 32 bit**, even on the 64-bit `ifHC*` OIDs. Throughput handles the wrap;
+  the byte counters use `total_increasing`, so statistics stay correct across wraps.
+- The Vigor only allows a few parallel web sessions. The integration keeps a single one; if you are
+  locked out of the web UI, lower the DSL polling or remove the web login.
+- *Force HTTPS* on the Vigor: enable the HTTPS option of the web login (self-signed certificates are
+  accepted).
+- Other models or odd values: open an issue and attach the integration's **diagnostics** download
+  (credentials are redacted; it contains the raw DSL status block).
+
+## Credits
+
+Protocol knowledge from [draytek_exporter](https://github.com/SuperQ/draytek_exporter),
+[ha-draytek](https://github.com/marcfrederick/ha-draytek) and
+[ha-draytek-vigor](https://github.com/skornehl/ha-draytek-vigor) – see [NOTICE](NOTICE).
+Not affiliated with DrayTek.
 
 ## License
 

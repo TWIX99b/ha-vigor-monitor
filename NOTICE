@@ -1,0 +1,20 @@
+DrayTek Vigor Monitor for Home Assistant
+Copyright (c) 2026 Niklas Boose
+
+The DrayOS 5 web API wire format (request encoding, login, DSL status field
+names) follows the documentation and implementation of draytek_exporter by
+Ben Kochie (https://github.com/SuperQ/draytek_exporter), licensed under the
+Apache License, Version 2.0. No source code was copied; the protocol was
+reimplemented in Python.
+
+The DrayTek-specific interpretation of the ADSL-LINE-MIB tables (ATU-C =
+downstream, ATU-R = upstream, values in whole dB) follows the findings of
+ha-draytek by Marc Frederick (https://github.com/marcfrederick/ha-draytek),
+Apache License, Version 2.0.
+
+The web session handling (log out before logging in again, log out on
+shutdown) incorporates lessons from ha-draytek-vigor by Sebastian Kornehl
+(https://github.com/skornehl/ha-draytek-vigor), MIT License.
+
+DrayTek and Vigor are trademarks of DrayTek Corp. This project is not
+affiliated with or endorsed by DrayTek.

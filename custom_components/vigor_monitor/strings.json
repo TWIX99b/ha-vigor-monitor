@@ -1,0 +1,180 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "DrayTek Vigor",
+        "description": "Enter the address of your DrayTek Vigor. SNMP (v2c) must be enabled on the device (System Maintenance > SNMP).",
+        "data": {
+          "host": "Host",
+          "community": "SNMP community",
+          "port": "SNMP port"
+        },
+        "data_description": {
+          "host": "IP address or hostname of the Vigor, e.g. 192.168.1.1.",
+          "community": "Read community configured on the Vigor (default: public)."
+        }
+      },
+      "interface": {
+        "title": "Select WAN interface",
+        "description": "Choose the interface that carries your DSL/WAN link. On DrayOS 5 (e.g. Vigor167) this is usually ptm0.",
+        "data": {
+          "interface_index": "Interface"
+        }
+      },
+      "dsl": {
+        "title": "DSL line values (optional)",
+        "description": "With the web login the integration also reads sync rate, attainable rate, SNR margin, attenuation and error counters (DrayOS 5, e.g. Vigor167). Read-only - nothing is changed on the device. Leave the user empty to skip; you can add it later under Configure.",
+        "data": {
+          "web_username": "Web user",
+          "web_password": "Web password",
+          "web_ssl": "Use HTTPS"
+        },
+        "data_description": {
+          "web_username": "Login of the Vigor's web interface (usually admin). Leave empty to skip the DSL values.",
+          "web_ssl": "Only needed if 'Force HTTPS' is enabled on the Vigor (self-signed certificates are accepted)."
+        }
+      },
+      "reauth_confirm": {
+        "title": "Web login rejected",
+        "description": "The Vigor rejected the web login several times. Enter the current credentials.",
+        "data": {
+          "web_username": "Web user",
+          "web_password": "Web password"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "No SNMP answer. Check address, community and that SNMP is enabled.",
+      "not_draytek": "The device answered, but it does not look like a DrayTek.",
+      "no_interfaces": "The device does not report any interfaces via SNMP.",
+      "web_invalid_auth": "Web login rejected. Check user and password (the Vigor also rejects logins when too many web sessions are open).",
+      "web_cannot_connect": "The web interface did not answer as expected. DSL values via the web API need DrayOS 5 (e.g. Vigor167); with 'Force HTTPS' enable the HTTPS option.",
+      "unknown": "Unexpected error, see the log for details."
+    },
+    "abort": {
+      "already_configured": "This device is already configured.",
+      "reauth_successful": "Login updated."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "DrayTek Vigor options",
+        "description": "Leave the web user empty to switch the DSL values off. Leave the password empty to keep the stored one.",
+        "data": {
+          "interface_index": "WAN interface",
+          "scan_interval": "SNMP polling interval",
+          "web_username": "Web user",
+          "web_password": "Web password",
+          "web_ssl": "Use HTTPS",
+          "dsl_scan_interval": "DSL polling interval"
+        },
+        "data_description": {
+          "web_username": "Login of the Vigor's web interface (usually admin). Leave empty to skip the DSL values.",
+          "web_ssl": "Only needed if 'Force HTTPS' is enabled on the Vigor (self-signed certificates are accepted)."
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "No SNMP answer. Check address, community and that SNMP is enabled.",
+      "not_draytek": "The device answered, but it does not look like a DrayTek.",
+      "no_interfaces": "The device does not report any interfaces via SNMP.",
+      "web_invalid_auth": "Web login rejected. Check user and password (the Vigor also rejects logins when too many web sessions are open).",
+      "web_cannot_connect": "The web interface did not answer as expected. DSL values via the web API need DrayOS 5 (e.g. Vigor167); with 'Force HTTPS' enable the HTTPS option.",
+      "unknown": "Unexpected error, see the log for details."
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "link": {
+        "name": "Connection"
+      },
+      "dsl_synced": {
+        "name": "DSL synced"
+      }
+    },
+    "sensor": {
+      "download": {
+        "name": "Download"
+      },
+      "upload": {
+        "name": "Upload"
+      },
+      "bytes_received": {
+        "name": "Data received"
+      },
+      "bytes_sent": {
+        "name": "Data sent"
+      },
+      "link_since": {
+        "name": "Connected since"
+      },
+      "cpu_load": {
+        "name": "CPU load"
+      },
+      "memory_usage": {
+        "name": "Memory usage"
+      },
+      "last_boot": {
+        "name": "Online since"
+      },
+      "dsl_sync_download": {
+        "name": "Sync rate download"
+      },
+      "dsl_sync_upload": {
+        "name": "Sync rate upload"
+      },
+      "dsl_attainable_download": {
+        "name": "Attainable rate download"
+      },
+      "dsl_attainable_upload": {
+        "name": "Attainable rate upload"
+      },
+      "dsl_snr_downstream": {
+        "name": "SNR margin download"
+      },
+      "dsl_snr_upstream": {
+        "name": "SNR margin upload"
+      },
+      "dsl_attenuation_downstream": {
+        "name": "Attenuation download"
+      },
+      "dsl_attenuation_upstream": {
+        "name": "Attenuation upload"
+      },
+      "dsl_status": {
+        "name": "DSL status"
+      },
+      "dsl_mode": {
+        "name": "DSL mode"
+      },
+      "dsl_firmware": {
+        "name": "DSL firmware"
+      },
+      "dsl_crc_near": {
+        "name": "CRC errors (Vigor)"
+      },
+      "dsl_crc_far": {
+        "name": "CRC errors (exchange)"
+      },
+      "dsl_es_near": {
+        "name": "Errored seconds (Vigor)"
+      },
+      "dsl_es_far": {
+        "name": "Errored seconds (exchange)"
+      },
+      "dsl_ses_near": {
+        "name": "Severely errored seconds (Vigor)"
+      },
+      "dsl_ses_far": {
+        "name": "Severely errored seconds (exchange)"
+      },
+      "dsl_uas_near": {
+        "name": "Unavailable seconds (Vigor)"
+      },
+      "dsl_uas_far": {
+        "name": "Unavailable seconds (exchange)"
+      }
+    }
+  }
+}

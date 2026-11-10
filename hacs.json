@@ -1,5 +1,5 @@
 {
-  "name": "DrayTek Vigor",
-  "homeassistant": "2025.2.0",
+  "name": "DrayTek Vigor Monitor",
+  "homeassistant": "2025.6.0",
   "render_readme": true
 }

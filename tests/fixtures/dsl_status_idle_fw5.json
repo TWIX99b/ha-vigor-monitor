@@ -1,0 +1,28 @@
+{
+  "_comment": "SYNTHETIC: Vigor167 without a DSL line.",
+  "rid": "0000",
+  "total": 1,
+  "start": 0,
+  "ct": [
+    {
+      "0MONITORING_DSL_GENERAL": [
+        {
+          "Name": "Setting",
+          "Status": "Idle",
+          "Mode": "DSL",
+          "Profile": "--",
+          "Annex": "",
+          "DSL_Version": "5.12.31.0_A_A60901",
+          "Stream_Table": [],
+          "End_Table": []
+        }
+      ]
+    },
+    {
+      "1MON_DSL_STREAM_TABLE": []
+    },
+    {
+      "1MON_DSL_END_TABLE": []
+    }
+  ]
+}

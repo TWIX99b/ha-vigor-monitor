@@ -14,6 +14,7 @@ from pysnmp.hlapi.asyncio import (
     SnmpEngine,
     UdpTransportTarget,
     get_cmd,
+    next_cmd,
 )
 from pysnmp.proto import rfc1902, rfc1905
 
@@ -36,11 +37,11 @@ _INTEGER_TYPES = (
 _MISSING_TYPES = (rfc1905.NoSuchObject, rfc1905.NoSuchInstance, rfc1905.EndOfMibView)
 
 
-class DrayTekError(Exception):
+class VigorSnmpError(Exception):
     """Generic SNMP error."""
 
 
-class DrayTekConnectionError(DrayTekError):
+class VigorSnmpConnectionError(VigorSnmpError):
     """The device did not answer (timeout, wrong community, unreachable)."""
 
 
@@ -72,7 +73,7 @@ def _convert(value: Any) -> Any:
     return value.prettyPrint() if hasattr(value, "prettyPrint") else value
 
 
-class DrayTekSnmpClient:
+class VigorSnmpClient:
     """Read values from a DrayTek Vigor via SNMP v2c."""
 
     def __init__(
@@ -110,7 +111,7 @@ class DrayTekSnmpClient:
                     retries=self._retries,
                 )
             except Exception as err:  # noqa: BLE001 - DNS errors etc.
-                raise DrayTekConnectionError(
+                raise VigorSnmpConnectionError(
                     f"Cannot resolve {self._host}: {err}"
                 ) from err
         return self._engine, self._target
@@ -130,7 +131,7 @@ class DrayTekSnmpClient:
                 lookupMib=False,
             )
             if error_indication:
-                raise DrayTekConnectionError(str(error_indication))
+                raise VigorSnmpConnectionError(str(error_indication))
             if error_status:
                 # SNMPv1-style error (e.g. noSuchName): fall back to one-by-one.
                 _LOGGER.debug(
@@ -154,7 +155,31 @@ class DrayTekSnmpClient:
             lookupMib=False,
         )
         if error_indication:
-            raise DrayTekConnectionError(str(error_indication))
+            raise VigorSnmpConnectionError(str(error_indication))
         if error_status or not var_binds:
             return None
         return _convert(var_binds[0][1])
+
+    async def async_get_next(self, oid: str) -> tuple[str, Any] | None:
+        """Return (oid, value) of the first instance below `oid`, or None."""
+        engine, target = await self._async_prepare()
+        error_indication, error_status, _, var_binds = await next_cmd(
+            engine,
+            self._auth,
+            target,
+            ContextData(),
+            ObjectType(ObjectIdentity(oid)),
+            lookupMib=False,
+        )
+        if error_indication:
+            raise VigorSnmpConnectionError(str(error_indication))
+        if error_status or not var_binds:
+            return None
+        first = var_binds[0]
+        if isinstance(first, list):  # older pysnmp: table of rows
+            first = first[0]
+        found, value = str(first[0]), first[1]
+        if not found.startswith(f"{oid}."):
+            return None
+        converted = _convert(value)
+        return None if converted is None else (found, converted)

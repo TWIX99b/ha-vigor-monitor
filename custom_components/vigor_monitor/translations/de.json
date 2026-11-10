@@ -1,0 +1,180 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "DrayTek Vigor",
+        "description": "Adresse deines DrayTek Vigor eingeben. Auf dem Gerät muss SNMP (v2c) aktiviert sein (Systemwartung > SNMP).",
+        "data": {
+          "host": "Host",
+          "community": "SNMP-Community",
+          "port": "SNMP-Port"
+        },
+        "data_description": {
+          "host": "IP-Adresse oder Hostname des Vigor, z. B. 192.168.1.1.",
+          "community": "Lese-Community, die im Vigor eingestellt ist (Standard: public)."
+        }
+      },
+      "interface": {
+        "title": "WAN-Schnittstelle auswählen",
+        "description": "Wähle die Schnittstelle, über die deine DSL-/WAN-Verbindung läuft. Bei DrayOS 5 (z. B. Vigor167) ist das meist ptm0.",
+        "data": {
+          "interface_index": "Schnittstelle"
+        }
+      },
+      "dsl": {
+        "title": "DSL-Leitungswerte (optional)",
+        "description": "Mit dem Web-Login liest die Integration zusätzlich Sync-Rate, max. Rate, SNR-Marge, Dämpfung und Fehlerzähler (DrayOS 5, z. B. Vigor167). Nur lesend – am Gerät wird nichts geändert. Benutzer leer lassen = überspringen; geht später auch unter „Konfigurieren“.",
+        "data": {
+          "web_username": "Web-Benutzer",
+          "web_password": "Web-Passwort",
+          "web_ssl": "HTTPS verwenden"
+        },
+        "data_description": {
+          "web_username": "Login der Vigor-Weboberfläche (meist admin). Leer lassen = keine DSL-Werte.",
+          "web_ssl": "Nur nötig, wenn im Vigor „HTTPS erzwingen“ aktiv ist (selbstsignierte Zertifikate werden akzeptiert)."
+        }
+      },
+      "reauth_confirm": {
+        "title": "Web-Anmeldung abgelehnt",
+        "description": "Der Vigor hat die Web-Anmeldung mehrfach abgelehnt. Bitte die aktuellen Zugangsdaten eingeben.",
+        "data": {
+          "web_username": "Web-Benutzer",
+          "web_password": "Web-Passwort"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Keine SNMP-Antwort. Adresse, Community und SNMP-Freigabe prüfen.",
+      "not_draytek": "Das Gerät antwortet, scheint aber kein DrayTek zu sein.",
+      "no_interfaces": "Das Gerät meldet per SNMP keine Schnittstellen.",
+      "web_invalid_auth": "Web-Anmeldung abgelehnt. Benutzer und Passwort prüfen (der Vigor lehnt auch ab, wenn zu viele Web-Sitzungen offen sind).",
+      "web_cannot_connect": "Die Weboberfläche antwortet nicht wie erwartet. DSL-Werte über die Web-API brauchen DrayOS 5 (z. B. Vigor167); bei „HTTPS erzwingen“ die HTTPS-Option aktivieren.",
+      "unknown": "Unerwarteter Fehler, Details im Log."
+    },
+    "abort": {
+      "already_configured": "Dieses Gerät ist bereits eingerichtet.",
+      "reauth_successful": "Anmeldung aktualisiert."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "DrayTek-Vigor-Optionen",
+        "description": "Web-Benutzer leer lassen = DSL-Werte aus. Passwort leer lassen = gespeichertes behalten.",
+        "data": {
+          "interface_index": "WAN-Schnittstelle",
+          "scan_interval": "SNMP-Abfrageintervall",
+          "web_username": "Web-Benutzer",
+          "web_password": "Web-Passwort",
+          "web_ssl": "HTTPS verwenden",
+          "dsl_scan_interval": "DSL-Abfrageintervall"
+        },
+        "data_description": {
+          "web_username": "Login der Vigor-Weboberfläche (meist admin). Leer lassen = keine DSL-Werte.",
+          "web_ssl": "Nur nötig, wenn im Vigor „HTTPS erzwingen“ aktiv ist (selbstsignierte Zertifikate werden akzeptiert)."
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Keine SNMP-Antwort. Adresse, Community und SNMP-Freigabe prüfen.",
+      "not_draytek": "Das Gerät antwortet, scheint aber kein DrayTek zu sein.",
+      "no_interfaces": "Das Gerät meldet per SNMP keine Schnittstellen.",
+      "web_invalid_auth": "Web-Anmeldung abgelehnt. Benutzer und Passwort prüfen (der Vigor lehnt auch ab, wenn zu viele Web-Sitzungen offen sind).",
+      "web_cannot_connect": "Die Weboberfläche antwortet nicht wie erwartet. DSL-Werte über die Web-API brauchen DrayOS 5 (z. B. Vigor167); bei „HTTPS erzwingen“ die HTTPS-Option aktivieren.",
+      "unknown": "Unerwarteter Fehler, Details im Log."
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "link": {
+        "name": "Verbindung"
+      },
+      "dsl_synced": {
+        "name": "DSL synchron"
+      }
+    },
+    "sensor": {
+      "download": {
+        "name": "Download"
+      },
+      "upload": {
+        "name": "Upload"
+      },
+      "bytes_received": {
+        "name": "Empfangen"
+      },
+      "bytes_sent": {
+        "name": "Gesendet"
+      },
+      "link_since": {
+        "name": "Verbunden seit"
+      },
+      "cpu_load": {
+        "name": "CPU-Last"
+      },
+      "memory_usage": {
+        "name": "Arbeitsspeicher"
+      },
+      "last_boot": {
+        "name": "Online seit"
+      },
+      "dsl_sync_download": {
+        "name": "Sync-Rate Download"
+      },
+      "dsl_sync_upload": {
+        "name": "Sync-Rate Upload"
+      },
+      "dsl_attainable_download": {
+        "name": "Max. Rate Download"
+      },
+      "dsl_attainable_upload": {
+        "name": "Max. Rate Upload"
+      },
+      "dsl_snr_downstream": {
+        "name": "SNR-Marge Download"
+      },
+      "dsl_snr_upstream": {
+        "name": "SNR-Marge Upload"
+      },
+      "dsl_attenuation_downstream": {
+        "name": "Dämpfung Download"
+      },
+      "dsl_attenuation_upstream": {
+        "name": "Dämpfung Upload"
+      },
+      "dsl_status": {
+        "name": "DSL-Status"
+      },
+      "dsl_mode": {
+        "name": "DSL-Modus"
+      },
+      "dsl_firmware": {
+        "name": "DSL-Firmware"
+      },
+      "dsl_crc_near": {
+        "name": "CRC-Fehler (Vigor)"
+      },
+      "dsl_crc_far": {
+        "name": "CRC-Fehler (Vermittlung)"
+      },
+      "dsl_es_near": {
+        "name": "Fehlersekunden (Vigor)"
+      },
+      "dsl_es_far": {
+        "name": "Fehlersekunden (Vermittlung)"
+      },
+      "dsl_ses_near": {
+        "name": "Schwere Fehlersekunden (Vigor)"
+      },
+      "dsl_ses_far": {
+        "name": "Schwere Fehlersekunden (Vermittlung)"
+      },
+      "dsl_uas_near": {
+        "name": "Nicht verfügbare Sekunden (Vigor)"
+      },
+      "dsl_uas_far": {
+        "name": "Nicht verfügbare Sekunden (Vermittlung)"
+      }
+    }
+  }
+}

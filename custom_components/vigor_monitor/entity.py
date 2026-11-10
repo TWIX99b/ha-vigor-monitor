@@ -1,4 +1,4 @@
-"""Base entity for DrayTek Vigor."""
+"""Base entity for DrayTek Vigor Monitor."""
 
 from __future__ import annotations
 
@@ -12,18 +12,18 @@ from homeassistant.helpers.update_coordinator import (
 )
 
 from .const import DOMAIN, MANUFACTURER
-from .coordinator import DrayTekRuntimeData
+from .coordinator import VigorRuntimeData
 
 
-class DrayTekEntity[_CoordinatorT: DataUpdateCoordinator[Any]](
+class VigorEntity[_CoordinatorT: DataUpdateCoordinator[Any]](
     CoordinatorEntity[_CoordinatorT]
 ):
-    """Common base for all DrayTek Vigor entities (SNMP and DSL)."""
+    """Common base for all entities (SNMP and web)."""
 
     _attr_has_entity_name = True
 
     def __init__(
-        self, coordinator: _CoordinatorT, runtime: DrayTekRuntimeData, key: str
+        self, coordinator: _CoordinatorT, runtime: VigorRuntimeData, key: str
     ) -> None:
         """Initialise the entity."""
         super().__init__(coordinator)

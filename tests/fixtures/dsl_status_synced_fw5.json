@@ -1,0 +1,90 @@
+{
+  "_comment": "SYNTHETIC: field layout per draytek_exporter, values from 'exec dslinfo' of a Vigor167 (fw 5.2.9). Replace with a real capture.",
+  "rid": "0000",
+  "total": 1,
+  "start": 0,
+  "ct": [
+    {
+      "0MONITORING_DSL_GENERAL": [
+        {
+          "Name": "Setting",
+          "Status": "SHOWTIME",
+          "Mode": "VDSL2",
+          "Profile": "35b",
+          "Annex": "ANNEX_B",
+          "DSL_Version": "5.12.31.0_B_A60901",
+          "Stream_Table": [
+            {
+              "Name": "Actual Rate",
+              "Downstream": "124999 kbps",
+              "Upstream": "42438 kbps"
+            },
+            {
+              "Name": "Attainable Rate",
+              "Downstream": "139871 kbps",
+              "Upstream": "46802 kbps"
+            },
+            {
+              "Name": "Interleave Depth",
+              "Downstream": "1",
+              "Upstream": "1"
+            },
+            {
+              "Name": "Actual PSD",
+              "Downstream": "-12.4 dB",
+              "Upstream": "-25.1 dB"
+            },
+            {
+              "Name": "SNR Margin",
+              "Downstream": "9.9 dB",
+              "Upstream": "8.1 dB"
+            }
+          ],
+          "End_Table": [
+            {
+              "Name": "Bitswap",
+              "Near_End": "ON",
+              "Far_End": "ON"
+            },
+            {
+              "Name": "ReTx",
+              "Near_End": "ON",
+              "Far_End": "OFF"
+            },
+            {
+              "Name": "Attenuation",
+              "Near_End": "11.2 dB",
+              "Far_End": "0.0 dB"
+            },
+            {
+              "Name": "CRC",
+              "Near_End": "17",
+              "Far_End": "3"
+            },
+            {
+              "Name": "ES",
+              "Near_End": "5 s",
+              "Far_End": "2 s"
+            },
+            {
+              "Name": "SES",
+              "Near_End": "0 s",
+              "Far_End": "0 s"
+            },
+            {
+              "Name": "UAS",
+              "Near_End": "29 s",
+              "Far_End": "29 s"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "1MON_DSL_STREAM_TABLE": []
+    },
+    {
+      "1MON_DSL_END_TABLE": []
+    }
+  ]
+}
