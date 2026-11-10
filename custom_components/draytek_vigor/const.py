@@ -9,12 +9,22 @@ MANUFACTURER: Final = "DrayTek"
 
 CONF_COMMUNITY: Final = "community"
 CONF_INTERFACE_INDEX: Final = "interface_index"
+CONF_SSH_USERNAME: Final = "ssh_username"
+CONF_SSH_PASSWORD: Final = "ssh_password"
+CONF_SSH_PORT: Final = "ssh_port"
+CONF_DSL_SCAN_INTERVAL: Final = "dsl_scan_interval"
 
 DEFAULT_PORT: Final = 161
 DEFAULT_COMMUNITY: Final = "public"
 DEFAULT_SCAN_INTERVAL: Final = 30
 MIN_SCAN_INTERVAL: Final = 10
 MAX_SCAN_INTERVAL: Final = 600
+
+# DSL line statistics via SSH CLI (DrayOS 5: `exec dslinfo`).
+DEFAULT_SSH_PORT: Final = 22
+DEFAULT_DSL_SCAN_INTERVAL: Final = 300
+MIN_DSL_SCAN_INTERVAL: Final = 60
+MAX_DSL_SCAN_INTERVAL: Final = 3600
 
 # Highest interface index probed when discovering interfaces.
 MAX_INTERFACE_INDEX: Final = 32

@@ -15,7 +15,9 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 from homeassistant.util import dt as dt_util
 
 from .const import (
+    CONF_DSL_SCAN_INTERVAL,
     CONF_INTERFACE_INDEX,
+    DEFAULT_DSL_SCAN_INTERVAL,
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
     IF_OPER_STATUS_UP,
@@ -29,6 +31,7 @@ from .const import (
     OID_SYS_UPTIME,
 )
 from .snmp_client import DrayTekError, DrayTekSnmpClient
+from .ssh_client import DrayTekSshAuthError, DrayTekSshClient, DrayTekSshError, DslInfo
 
 if TYPE_CHECKING:
     from . import DrayTekConfigEntry
@@ -43,6 +46,20 @@ _BOOT_TIME_TOLERANCE = timedelta(seconds=90)
 
 _MODEL_RE = re.compile(r"Router Model:\s*([^,]+)", re.IGNORECASE)
 _VERSION_RE = re.compile(r"Version:\s*([^,]+)", re.IGNORECASE)
+
+
+def _stable_since(
+    current: datetime | None, seconds_ago: float | None
+) -> datetime | None:
+    """Turn an uptime into a timestamp that only moves on a real change."""
+    if seconds_ago is None:
+        return current
+    since = (dt_util.utcnow() - timedelta(seconds=seconds_ago)).replace(
+        second=0, microsecond=0
+    )
+    if current is None or abs(since - current) > _BOOT_TIME_TOLERANCE:
+        return since
+    return current
 
 
 def parse_sys_descr(descr: str | None) -> tuple[str | None, str | None]:
@@ -177,11 +194,63 @@ class DrayTekCoordinator(DataUpdateCoordinator[DrayTekData]):
 
     def _calc_boot_time(self, uptime_ticks: int | None) -> datetime | None:
         """sysUpTime is in 1/100 s; turn it into a stable boot timestamp."""
-        if uptime_ticks is None:
-            return self._boot_time
-        boot = (dt_util.utcnow() - timedelta(seconds=uptime_ticks / 100)).replace(
-            second=0, microsecond=0
+        self._boot_time = _stable_since(
+            self._boot_time, None if uptime_ticks is None else uptime_ticks / 100
         )
-        if self._boot_time is None or abs(boot - self._boot_time) > _BOOT_TIME_TOLERANCE:
-            self._boot_time = boot
         return self._boot_time
+
+
+@dataclass(slots=True)
+class DrayTekDslData:
+    """DSL line statistics read via the SSH CLI."""
+
+    info: DslInfo
+    line_since: datetime | None
+
+
+class DrayTekDslCoordinator(DataUpdateCoordinator[DrayTekDslData]):
+    """Poll `exec dslinfo` via SSH (slower interval, optional)."""
+
+    config_entry: DrayTekConfigEntry
+
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        entry: DrayTekConfigEntry,
+        client: DrayTekSshClient,
+    ) -> None:
+        """Initialise the coordinator."""
+        super().__init__(
+            hass,
+            _LOGGER,
+            config_entry=entry,
+            name=f"{DOMAIN}_dsl",
+            update_interval=timedelta(
+                seconds=entry.options.get(
+                    CONF_DSL_SCAN_INTERVAL, DEFAULT_DSL_SCAN_INTERVAL
+                )
+            ),
+        )
+        self.client = client
+        self._line_since: datetime | None = None
+
+    async def _async_update_data(self) -> DrayTekDslData:
+        try:
+            info = await self.client.async_get_dsl_info()
+        except DrayTekSshAuthError as err:
+            raise UpdateFailed(f"SSH login rejected: {err}") from err
+        except DrayTekSshError as err:
+            raise UpdateFailed(f"Error reading DSL info: {err}") from err
+        if info.line_uptime:
+            self._line_since = _stable_since(self._line_since, info.line_uptime)
+        else:
+            self._line_since = None  # line not in sync
+        return DrayTekDslData(info=info, line_since=self._line_since)
+
+
+@dataclass(slots=True)
+class DrayTekRuntimeData:
+    """Objects stored in the config entry while it is loaded."""
+
+    snmp: DrayTekCoordinator
+    dsl: DrayTekDslCoordinator | None

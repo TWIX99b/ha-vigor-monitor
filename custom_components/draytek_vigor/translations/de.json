@@ -38,9 +38,24 @@
         "title": "DrayTek-Vigor-Optionen",
         "data": {
           "interface_index": "WAN-Schnittstelle",
-          "scan_interval": "Abfrageintervall"
+          "scan_interval": "Abfrageintervall",
+          "ssh_username": "SSH-Benutzer",
+          "ssh_password": "SSH-Passwort",
+          "ssh_port": "SSH-Port",
+          "dsl_scan_interval": "DSL-Abfrageintervall"
+        },
+        "description": "Optional: SSH-Zugang für die DSL-Leitungswerte (Sync-Rate, SNR, Leitungsstatus). Braucht DrayOS 5 (z. B. Vigor167) und SSH unter Systemwartung > Management. Benutzer leer lassen = aus. Passwort leer lassen = gespeichertes behalten.",
+        "data_description": {
+          "ssh_username": "Admin-Benutzer des Vigor. Leer = DSL-Werte aus.",
+          "dsl_scan_interval": "Jede Abfrage ist ein SSH-Login; 300 s reichen völlig."
         }
       }
+    },
+    "error": {
+      "ssh_invalid_auth": "SSH-Anmeldung abgelehnt. Benutzer und Passwort prüfen.",
+      "ssh_cannot_connect": "Keine SSH-Verbindung. Ist SSH im Vigor aktiviert und der Port richtig?",
+      "ssh_unsupported": "Der Vigor kennt den Befehl `exec dslinfo` nicht (DrayOS 5 nötig).",
+      "unknown": "Unerwarteter Fehler, Details im Log."
     }
   },
   "entity": {
@@ -67,6 +82,30 @@
       },
       "last_boot": {
         "name": "Online seit"
+      },
+      "dsl_sync_download": {
+        "name": "Sync-Rate Download"
+      },
+      "dsl_sync_upload": {
+        "name": "Sync-Rate Upload"
+      },
+      "dsl_snr_downstream": {
+        "name": "SNR-Marge Download"
+      },
+      "dsl_snr_upstream": {
+        "name": "SNR-Marge Upload"
+      },
+      "dsl_status": {
+        "name": "DSL-Status"
+      },
+      "dsl_line_since": {
+        "name": "DSL synchron seit"
+      },
+      "dsl_mode": {
+        "name": "DSL-Modus"
+      },
+      "dsl_firmware": {
+        "name": "DSL-Firmware"
       }
     }
   }

@@ -18,20 +18,31 @@ from homeassistant.helpers.selector import (
     SelectSelector,
     SelectSelectorConfig,
     SelectSelectorMode,
+    TextSelector,
+    TextSelectorConfig,
+    TextSelectorType,
 )
 
 from . import DrayTekConfigEntry
 from .const import (
     CONF_COMMUNITY,
+    CONF_DSL_SCAN_INTERVAL,
     CONF_INTERFACE_INDEX,
+    CONF_SSH_PASSWORD,
+    CONF_SSH_PORT,
+    CONF_SSH_USERNAME,
     DEFAULT_COMMUNITY,
+    DEFAULT_DSL_SCAN_INTERVAL,
     DEFAULT_PORT,
     DEFAULT_SCAN_INTERVAL,
+    DEFAULT_SSH_PORT,
     DOMAIN,
     DRAYTEK_ENTERPRISE_OID,
     MANUFACTURER,
     MAX_INTERFACE_INDEX,
+    MAX_DSL_SCAN_INTERVAL,
     MAX_SCAN_INTERVAL,
+    MIN_DSL_SCAN_INTERVAL,
     MIN_SCAN_INTERVAL,
     OID_IF_DESCR,
     OID_SYS_DESCR,
@@ -40,6 +51,12 @@ from .const import (
 )
 from .coordinator import parse_sys_descr
 from .snmp_client import DrayTekConnectionError, DrayTekError, DrayTekSnmpClient
+from .ssh_client import (
+    DrayTekSshAuthError,
+    DrayTekSshClient,
+    DrayTekSshError,
+    DrayTekSshUnsupportedError,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -191,22 +208,73 @@ class DrayTekConfigFlow(ConfigFlow, domain=DOMAIN):
         return DrayTekOptionsFlow()
 
 
+def _number_selector(minimum: int, maximum: int, unit: str | None = None) -> NumberSelector:
+    return NumberSelector(
+        NumberSelectorConfig(
+            min=minimum,
+            max=maximum,
+            step=1,
+            unit_of_measurement=unit,
+            mode=NumberSelectorMode.BOX,
+        )
+    )
+
+
+async def _async_validate_ssh(host: str, port: int, username: str, password: str) -> str | None:
+    """Try `exec dslinfo` once. Returns an error key or None."""
+    try:
+        await DrayTekSshClient(host, port, username, password).async_get_dsl_info()
+    except DrayTekSshAuthError:
+        return "ssh_invalid_auth"
+    except DrayTekSshUnsupportedError:
+        return "ssh_unsupported"
+    except DrayTekSshError:
+        return "ssh_cannot_connect"
+    except Exception:
+        _LOGGER.exception("Unexpected error while testing SSH on %s", host)
+        return "unknown"
+    return None
+
+
 class DrayTekOptionsFlow(OptionsFlow):
-    """Change interface and polling interval."""
+    """Change interface, polling interval and the optional DSL (SSH) access."""
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         """Manage the options."""
+        entry = self.config_entry
+        options = entry.options
+        errors: dict[str, str] = {}
+
         if user_input is not None:
-            return self.async_create_entry(
-                data={
+            username = (user_input.get(CONF_SSH_USERNAME) or "").strip()
+            # Empty password field = keep the stored one (it is never shown).
+            password = user_input.get(CONF_SSH_PASSWORD) or (
+                options.get(CONF_SSH_PASSWORD, "")
+                if username == options.get(CONF_SSH_USERNAME)
+                else ""
+            )
+            ssh_port = int(user_input.get(CONF_SSH_PORT, DEFAULT_SSH_PORT))
+            if username:
+                if error := await _async_validate_ssh(
+                    entry.data[CONF_HOST], ssh_port, username, password
+                ):
+                    errors["base"] = error
+            if not errors:
+                new_options: dict[str, Any] = {
                     CONF_INTERFACE_INDEX: int(user_input[CONF_INTERFACE_INDEX]),
                     CONF_SCAN_INTERVAL: int(user_input[CONF_SCAN_INTERVAL]),
+                    CONF_DSL_SCAN_INTERVAL: int(user_input[CONF_DSL_SCAN_INTERVAL]),
                 }
-            )
+                if username:
+                    new_options |= {
+                        CONF_SSH_USERNAME: username,
+                        CONF_SSH_PASSWORD: password,
+                        CONF_SSH_PORT: ssh_port,
+                    }
+                return self.async_create_entry(data=new_options)
 
-        entry = self.config_entry
         try:
             _, interfaces = await _async_probe(
                 self.hass,
@@ -217,31 +285,47 @@ class DrayTekOptionsFlow(OptionsFlow):
         except Exception:  # noqa: BLE001 - device offline: keep current choice only
             interfaces = {}
         current_index = int(
-            entry.options.get(CONF_INTERFACE_INDEX, entry.data[CONF_INTERFACE_INDEX])
+            options.get(CONF_INTERFACE_INDEX, entry.data[CONF_INTERFACE_INDEX])
         )
         interfaces.setdefault(current_index, f"Interface {current_index}")
 
+        schema = vol.Schema(
+            {
+                vol.Required(CONF_INTERFACE_INDEX): _interface_selector(
+                    dict(sorted(interfaces.items()))
+                ),
+                vol.Required(CONF_SCAN_INTERVAL): _number_selector(
+                    MIN_SCAN_INTERVAL, MAX_SCAN_INTERVAL, "s"
+                ),
+                vol.Optional(CONF_SSH_USERNAME): TextSelector(
+                    TextSelectorConfig(autocomplete="username")
+                ),
+                vol.Optional(CONF_SSH_PASSWORD): TextSelector(
+                    TextSelectorConfig(
+                        type=TextSelectorType.PASSWORD, autocomplete="current-password"
+                    )
+                ),
+                vol.Required(CONF_SSH_PORT): _number_selector(1, 65535),
+                vol.Required(CONF_DSL_SCAN_INTERVAL): _number_selector(
+                    MIN_DSL_SCAN_INTERVAL, MAX_DSL_SCAN_INTERVAL, "s"
+                ),
+            }
+        )
+        suggested: dict[str, Any] = {
+            CONF_INTERFACE_INDEX: str(current_index),
+            CONF_SCAN_INTERVAL: options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL),
+            CONF_SSH_USERNAME: options.get(CONF_SSH_USERNAME, ""),
+            CONF_SSH_PORT: options.get(CONF_SSH_PORT, DEFAULT_SSH_PORT),
+            CONF_DSL_SCAN_INTERVAL: options.get(
+                CONF_DSL_SCAN_INTERVAL, DEFAULT_DSL_SCAN_INTERVAL
+            ),
+        }
+        if user_input is not None:
+            suggested |= {
+                k: v for k, v in user_input.items() if k != CONF_SSH_PASSWORD
+            }
         return self.async_show_form(
             step_id="init",
-            data_schema=vol.Schema(
-                {
-                    vol.Required(
-                        CONF_INTERFACE_INDEX, default=str(current_index)
-                    ): _interface_selector(dict(sorted(interfaces.items()))),
-                    vol.Required(
-                        CONF_SCAN_INTERVAL,
-                        default=entry.options.get(
-                            CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL
-                        ),
-                    ): NumberSelector(
-                        NumberSelectorConfig(
-                            min=MIN_SCAN_INTERVAL,
-                            max=MAX_SCAN_INTERVAL,
-                            step=1,
-                            unit_of_measurement="s",
-                            mode=NumberSelectorMode.BOX,
-                        )
-                    ),
-                }
-            ),
+            data_schema=self.add_suggested_values_to_schema(schema, suggested),
+            errors=errors,
         )

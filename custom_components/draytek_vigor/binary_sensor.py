@@ -10,7 +10,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from . import DrayTekConfigEntry
-from .coordinator import DrayTekCoordinator
+from .coordinator import DrayTekCoordinator, DrayTekRuntimeData
 from .entity import DrayTekEntity
 
 PARALLEL_UPDATES = 0
@@ -25,15 +25,15 @@ async def async_setup_entry(
     async_add_entities([DrayTekLinkSensor(entry.runtime_data)])
 
 
-class DrayTekLinkSensor(DrayTekEntity, BinarySensorEntity):
+class DrayTekLinkSensor(DrayTekEntity[DrayTekCoordinator], BinarySensorEntity):
     """DSL/WAN link up or down (IF-MIB ifOperStatus)."""
 
     _attr_device_class = BinarySensorDeviceClass.CONNECTIVITY
     _attr_translation_key = "link"
 
-    def __init__(self, coordinator: DrayTekCoordinator) -> None:
+    def __init__(self, runtime: DrayTekRuntimeData) -> None:
         """Initialise the binary sensor."""
-        super().__init__(coordinator, "link")
+        super().__init__(runtime.snmp, runtime, "link")
 
     @property
     def is_on(self) -> bool | None:

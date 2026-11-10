@@ -1,13 +1,21 @@
 {
   "domain": "draytek_vigor",
   "name": "DrayTek Vigor",
-  "codeowners": ["@TWIX99b"],
+  "codeowners": [
+    "@TWIX99b"
+  ],
   "config_flow": true,
   "documentation": "https://github.com/TWIX99b/ha-draytek-vigor",
   "integration_type": "device",
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/TWIX99b/ha-draytek-vigor/issues",
-  "loggers": ["pysnmp"],
-  "requirements": ["pysnmp>=7.1.0"],
-  "version": "0.1.0"
+  "loggers": [
+    "pysnmp",
+    "asyncssh"
+  ],
+  "requirements": [
+    "pysnmp>=7.1.0",
+    "asyncssh>=2.14.0"
+  ],
+  "version": "0.2.0"
 }

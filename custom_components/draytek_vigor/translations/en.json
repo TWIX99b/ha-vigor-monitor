@@ -38,9 +38,24 @@
         "title": "DrayTek Vigor options",
         "data": {
           "interface_index": "WAN interface",
-          "scan_interval": "Polling interval"
+          "scan_interval": "Polling interval",
+          "ssh_username": "SSH user",
+          "ssh_password": "SSH password",
+          "ssh_port": "SSH port",
+          "dsl_scan_interval": "DSL polling interval"
+        },
+        "description": "Optional: SSH login for DSL line values (sync rate, SNR, line status). Requires DrayOS 5 (e.g. Vigor167) and SSH enabled under System Maintenance > Management. Leave the user empty to disable. Leave the password empty to keep the stored one.",
+        "data_description": {
+          "ssh_username": "Admin user of the Vigor. Empty = DSL values off.",
+          "dsl_scan_interval": "Each poll is an SSH login; 300 s is plenty."
         }
       }
+    },
+    "error": {
+      "ssh_invalid_auth": "SSH login rejected. Check user and password.",
+      "ssh_cannot_connect": "No SSH connection. Check that SSH is enabled on the Vigor and the port is correct.",
+      "ssh_unsupported": "The Vigor does not know the command `exec dslinfo` (DrayOS 5 is required).",
+      "unknown": "Unexpected error, see the log for details."
     }
   },
   "entity": {
@@ -67,6 +82,30 @@
       },
       "last_boot": {
         "name": "Online since"
+      },
+      "dsl_sync_download": {
+        "name": "Sync rate download"
+      },
+      "dsl_sync_upload": {
+        "name": "Sync rate upload"
+      },
+      "dsl_snr_downstream": {
+        "name": "SNR margin download"
+      },
+      "dsl_snr_upstream": {
+        "name": "SNR margin upload"
+      },
+      "dsl_status": {
+        "name": "DSL status"
+      },
+      "dsl_line_since": {
+        "name": "DSL line synced since"
+      },
+      "dsl_mode": {
+        "name": "DSL mode"
+      },
+      "dsl_firmware": {
+        "name": "DSL firmware"
       }
     }
   }

@@ -2,26 +2,35 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from homeassistant.const import CONF_HOST
 from homeassistant.helpers.device_registry import DeviceInfo
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.helpers.update_coordinator import (
+    CoordinatorEntity,
+    DataUpdateCoordinator,
+)
 
 from .const import DOMAIN, MANUFACTURER
-from .coordinator import DrayTekCoordinator
+from .coordinator import DrayTekRuntimeData
 
 
-class DrayTekEntity(CoordinatorEntity[DrayTekCoordinator]):
-    """Common base for all DrayTek Vigor entities."""
+class DrayTekEntity[_CoordinatorT: DataUpdateCoordinator[Any]](
+    CoordinatorEntity[_CoordinatorT]
+):
+    """Common base for all DrayTek Vigor entities (SNMP and DSL)."""
 
     _attr_has_entity_name = True
 
-    def __init__(self, coordinator: DrayTekCoordinator, key: str) -> None:
+    def __init__(
+        self, coordinator: _CoordinatorT, runtime: DrayTekRuntimeData, key: str
+    ) -> None:
         """Initialise the entity."""
         super().__init__(coordinator)
-        entry = coordinator.config_entry
+        entry = runtime.snmp.config_entry
         device_id = entry.unique_id or entry.entry_id
         self._attr_unique_id = f"{device_id}_{key}"
-        data = coordinator.data
+        data = runtime.snmp.data
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, device_id)},
             manufacturer=MANUFACTURER,
