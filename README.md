@@ -1,3 +1,5 @@
+<img src="custom_components/vigor_monitor/brand/icon.png" alt="" width="96" align="right">
+
 # DrayTek Vigor Monitor for Home Assistant
 
 [![Validate](https://github.com/TWIX99b/ha-vigor-monitor/actions/workflows/validate.yaml/badge.svg)](https://github.com/TWIX99b/ha-vigor-monitor/actions/workflows/validate.yaml)
