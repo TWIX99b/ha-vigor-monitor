@@ -1,5 +1,5 @@
 {
-  "_comment": "SYNTHETIC: field layout per draytek_exporter, values from 'exec dslinfo' of a Vigor167 (fw 5.2.9). Replace with a real capture.",
+  "_comment": "REAL capture: Vigor167, firmware 5.2.9, DSL 5.12.31.0, synced VDSL2 35b line, 2026-11-10. 'Setting' block as received; rid/ct envelope reconstructed.",
   "rid": "0000",
   "total": 1,
   "start": 0,
@@ -8,11 +8,21 @@
       "0MONITORING_DSL_GENERAL": [
         {
           "Name": "Setting",
-          "Status": "SHOWTIME",
+          "ATU_R_Information": "",
+          "Broadcast_DSL_Status_to_LAN": [
+            true
+          ],
+          "Note": "",
+          "Status": "Showtime",
           "Mode": "VDSL2",
           "Profile": "35b",
-          "Annex": "ANNEX_B",
+          "Annex": "ANNEX B",
           "DSL_Version": "5.12.31.0_B_A60901",
+          "Power_Management_Mode": "--",
+          "ATU_R_Vendor_ID": "fe004452 41590000",
+          "ATU_C_Information": "",
+          "ATU_C_Vendor_ID": "b5004244 434dd086",
+          "Line_Statistics": "",
           "Stream_Table": [
             {
               "Name": "Actual Rate",
@@ -21,26 +31,36 @@
             },
             {
               "Name": "Attainable Rate",
-              "Downstream": "139871 kbps",
-              "Upstream": "46802 kbps"
+              "Downstream": "182771 Kbps",
+              "Upstream": "43761 Kbps"
+            },
+            {
+              "Name": "Path Mode",
+              "Downstream": "Interleaved",
+              "Upstream": "Fast"
             },
             {
               "Name": "Interleave Depth",
-              "Downstream": "1",
+              "Downstream": "8",
               "Upstream": "1"
             },
             {
               "Name": "Actual PSD",
-              "Downstream": "-12.4 dB",
-              "Upstream": "-25.1 dB"
+              "Downstream": "0 dB",
+              "Upstream": "0 dB"
             },
             {
               "Name": "SNR Margin",
-              "Downstream": "9.9 dB",
+              "Downstream": "9.8 dB",
               "Upstream": "8.1 dB"
             }
           ],
           "End_Table": [
+            {
+              "Name": "Trellis",
+              "Near_End": "-",
+              "Far_End": "-"
+            },
             {
               "Name": "Bitswap",
               "Near_End": "ON",
@@ -49,32 +69,92 @@
             {
               "Name": "ReTx",
               "Near_End": "ON",
-              "Far_End": "OFF"
+              "Far_End": "ON"
             },
             {
               "Name": "Attenuation",
-              "Near_End": "11.2 dB",
-              "Far_End": "0.0 dB"
+              "Near_End": "11.8 dB",
+              "Far_End": "3.1 dB"
             },
             {
               "Name": "CRC",
-              "Near_End": "17",
-              "Far_End": "3"
+              "Near_End": "76",
+              "Far_End": "7"
+            },
+            {
+              "Name": "FECS",
+              "Near_End": "-",
+              "Far_End": "-"
             },
             {
               "Name": "ES",
-              "Near_End": "5 s",
-              "Far_End": "2 s"
+              "Near_End": "82 s",
+              "Far_End": "5 s"
             },
             {
               "Name": "SES",
-              "Near_End": "0 s",
+              "Near_End": "49 s",
               "Far_End": "0 s"
             },
             {
+              "Name": "LOSS",
+              "Near_End": "-",
+              "Far_End": "-"
+            },
+            {
               "Name": "UAS",
-              "Near_End": "29 s",
-              "Far_End": "29 s"
+              "Near_End": "138 s",
+              "Far_End": "138 s"
+            },
+            {
+              "Name": "HEC Errors",
+              "Near_End": "0",
+              "Far_End": "0"
+            },
+            {
+              "Name": "RS Corrections",
+              "Near_End": "-",
+              "Far_End": "-"
+            },
+            {
+              "Name": "LOS Failure",
+              "Near_End": "0",
+              "Far_End": "0"
+            },
+            {
+              "Name": "LOF Failure",
+              "Near_End": "0",
+              "Far_End": "0"
+            },
+            {
+              "Name": "LPR Failure",
+              "Near_End": "0",
+              "Far_End": "0"
+            },
+            {
+              "Name": "NCD Failure",
+              "Near_End": "-",
+              "Far_End": "-"
+            },
+            {
+              "Name": "LCD Failure",
+              "Near_End": "0",
+              "Far_End": "0"
+            },
+            {
+              "Name": "NFEC",
+              "Near_End": "-",
+              "Far_End": "-"
+            },
+            {
+              "Name": "RFEC",
+              "Near_End": "8",
+              "Far_End": "10"
+            },
+            {
+              "Name": "LYSMB",
+              "Near_End": "-",
+              "Far_End": "-"
             }
           ]
         }

@@ -66,16 +66,22 @@ def test_is_ok() -> None:
 
 
 def test_parse_synced_line() -> None:
+    """Real capture from a Vigor167 (fw 5.2.9) on a synced VDSL2 line."""
     status = protocol.parse_web_dsl_status(_fixture("dsl_status_synced_fw5.json"))
+    assert status.status == "Showtime"
     assert status.synced is True
     assert status.mode_profile == "VDSL2 35b"
+    assert status.annex == "ANNEX B"
     assert status.dsl_version == "5.12.31.0_B_A60901"
     assert (status.rate_down, status.rate_up) == (124999, 42438)
-    assert (status.attainable_down, status.attainable_up) == (139871, 46802)
-    assert (status.snr_down, status.snr_up) == (9.9, 8.1)
-    assert (status.attenuation_down, status.attenuation_up) == (11.2, 0)
-    assert (status.crc_near, status.crc_far) == (17, 3)
-    assert (status.es_near, status.ses_near, status.uas_near) == (5, 0, 29)
+    # The device writes "Kbps" here (capital K) and "kbps" for the actual rate.
+    assert (status.attainable_down, status.attainable_up) == (182771, 43761)
+    assert (status.snr_down, status.snr_up) == (9.8, 8.1)
+    assert (status.attenuation_down, status.attenuation_up) == (11.8, 3.1)
+    assert (status.crc_near, status.crc_far) == (76, 7)
+    assert (status.es_near, status.es_far) == (82, 5)
+    assert (status.ses_near, status.ses_far) == (49, 0)
+    assert (status.uas_near, status.uas_far) == (138, 138)
     assert status.source == "web"
 
 
